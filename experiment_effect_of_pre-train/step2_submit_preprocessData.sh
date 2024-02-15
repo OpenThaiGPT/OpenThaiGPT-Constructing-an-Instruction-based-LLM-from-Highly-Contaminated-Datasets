@@ -1,0 +1,1 @@
+python ..src/model/scripts/lighting_training/data_preprocessing.py

@@ -1,0 +1,4 @@
+defaults:
+  - model: llama-hf-7b-from-scratch
+  - dataset: mc4
+  - data_process: data_process_v1

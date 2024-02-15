@@ -7,7 +7,6 @@ from transformers import Trainer
 from datasets import load_from_disk
 from torch.utils.data import IterableDataset
 
-
 import os
 import random
 
@@ -21,10 +20,10 @@ class ModelArguments:
 
 @dataclass
 class DataArguments:
-    data_path: List[str] = field(
+    data_path: Optional[List[str]] = field(
         default_factory=list, metadata={"help": "Path to the tokenized data."}
     )
-    data_weights: List[float] = field(default_factory=list)
+    data_weights: Optional[List[float]] = field(default_factory=list)
     train_split: Optional[str] = field(default="train")
     eval_split: Optional[str] = field(default="eval")
 
@@ -40,18 +39,6 @@ class TrainingArguments(transformers.TrainingArguments):
             "help": "Maximum sequence length. Sequences will be right padded (and possibly truncated)."  # noqa
         },
     )
-
-
-class DataCollatorForSupervisedDataset(object):
-    """Collate examples for supervised fine-tuning."""
-
-    def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
-        input_ids = [instance["input_ids"] for instance in instances]
-        input_ids = torch.tensor(input_ids)  # type: ignore
-        return {
-            "input_ids": input_ids,  # type: ignore
-            "labels": input_ids,  # type: ignore
-        }
 
 
 class CombinedDataset(IterableDataset):
@@ -89,6 +76,18 @@ class CombinedDatasetIterator:
         return next(dataset)
 
 
+class DataCollatorForSupervisedDataset(object):
+    """Collate examples for supervised fine-tuning."""
+
+    def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
+        input_ids = [instance["input_ids"] for instance in instances]
+        input_ids = torch.tensor(input_ids)  # type: ignore
+        return {
+            "input_ids": input_ids,  # type: ignore
+            "labels": input_ids,  # type: ignore
+        }
+
+
 def load_dataset(paths, weights, split, seed=42):
     datasets = []
     for path in paths:
@@ -120,7 +119,7 @@ def train():
     )
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    model = transformers.LlamaForCausalLM.from_pretrained(
+    model = transformers.AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
     )
@@ -128,7 +127,7 @@ def train():
     if model_args.tokenizer_name_or_path is None:
         model_args.tokenizer_name_or_path = model_args.model_name_or_path
 
-    tokenizer = transformers.LlamaTokenizer.from_pretrained(
+    tokenizer = transformers.AutoTokenizer.from_pretrained(
         model_args.tokenizer_name_or_path,
         cache_dir=training_args.cache_dir,
         model_max_length=training_args.model_max_length,
@@ -136,12 +135,10 @@ def train():
         use_fast=False,
     )
 
-    # if tokenizer is not None and model.vocab_size != len(tokenizer):
-    #     model.resize_token_embeddings(len(tokenizer))
-
     data_module = make_supervised_data_module(
         data_args=data_args, seed=training_args.data_seed
     )
+
     trainer = Trainer(
         model=model, tokenizer=tokenizer, args=training_args, **data_module
     )

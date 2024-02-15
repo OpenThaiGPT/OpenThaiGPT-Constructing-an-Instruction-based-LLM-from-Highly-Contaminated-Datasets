@@ -12,6 +12,7 @@ DOC_TEXT = "text"
 EOS_TOKEN = "</s>"
 BOS_TOKEN = "<s>"
 UNK_TOKEN = "<unk>"
+USER_DEFINED_SYMBOLS = []
 
 SPM_MODE = "spm"
 BPE_MODE = "bpe"
@@ -65,6 +66,8 @@ def load_local_dataset(data_type, local_path):
             streaming=True,
         )
 
+    # text_dataset = Dataset.from_dict(text_dataset[:int(len(text_dataset) * .5)])
+
     return text_dataset
 
 
@@ -73,7 +76,7 @@ def train_tokenizer(
     vocab_size: int,
     num_docs: Optional[Union[str, int]] = None,
     num_proc: Optional[int] = os.cpu_count(),
-    streaming: bool = True,
+    is_slurm: bool = False,
     load_dataset_path: str = "oscar",
     load_dataset_name: str = "unshuffled_deduplicated_th",
     load_dataset_local_path: Optional[str] = None,
@@ -89,7 +92,7 @@ def train_tokenizer(
         vocab_size (int): The size of the vocabulary to use when training the tokenizer.
         num_docs (int, optional): The number of documents to use from the input dataset.
         num_proc (int, optional): The number of CPU cores to use when training the tokenizer. Defaults to the number of available CPU cores.
-        streaming (bool, optional): Whether the code is running on a Slurm cluster. Defaults to False.
+        is_slurm (bool, optional): Whether the code is running on a Slurm cluster. Defaults to False.
         load_dataset_path (str, optional): The name of the Hugging Face dataset to load. Defaults to "oscar".
         load_dataset_name (str, optional): The name of the dataset split to use. Defaults to "unshuffled_deduplicated_th".
         load_dataset_local_path (str, optional): The path to a local directory containing the input data. If specified, the Hugging Face dataset is not used. Defaults to None.
@@ -103,12 +106,12 @@ def train_tokenizer(
         KeyError(f"mode mush be {SPM_MODE} or {BPE_MODE}")
 
     if load_dataset_local_path is None:
-        if streaming:
+        if not is_slurm:
             text_dataset = load_dataset(
                 path=load_dataset_path,
                 name=load_dataset_name,
                 split="train",
-                streaming=streaming,
+                streaming=not is_slurm,
             )
 
             num_docs = len(text_dataset) if num_docs is None else num_docs
@@ -149,7 +152,7 @@ def train_tokenizer(
         ),
         model_prefix=output_path + "/spm_tokenizer",
         vocab_size=vocab_size,
-        user_defined_symbols=[],
+        user_defined_symbols=USER_DEFINED_SYMBOLS,
         num_threads=num_proc,
         train_extremely_large_corpus=large_corpus,
         model_type=mode,

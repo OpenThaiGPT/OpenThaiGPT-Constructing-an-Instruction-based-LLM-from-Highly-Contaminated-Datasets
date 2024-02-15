@@ -23,3 +23,16 @@ sh preprocess_data/blind_pdpa/run_blind.sh
 ```
 
 ## Step of pre-train
+
+1. Convert dataset from hf to openthai
+```
+sh train_tiny_llama/step1_1submit_data_hf_openthai.sh
+```
+2. Convert the dataset to Tinyllama format
+```
+sh train_tiny_llama/step1_2submit_data_openthai.sh
+```
+3. Train Tinyllama models
+```
+sh train_tiny_llama/step2_submit_train.sh
+```

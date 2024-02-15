@@ -1,0 +1,35 @@
+defaults:
+  - datasets: 
+    - copa_thai
+    - hellaswag_thai
+    - lst20
+    - lst20_test
+    - multirc_thai
+    - record_thai
+    - rte_thai
+    - thaisum
+    - thaisum_test
+    - xquad
+    - ted_talks_iwslt_th_en
+  
+train_dataset:
+  key: openthaigpt
+  name: openthaigpt_pretraining_dataset
+  available_on_hub: False
+  path_name: dataset_path
+  split: train
+  subset:
+  col_name: text
+
+minhash:
+  newmm_dict: newmm_dict.txt
+  save_path: dataset_path
+
+decontaminate:
+  thresold: 0.3
+  minhash_path: minhash_path
+  save_path: minhash_decontaminate
+
+global_config:
+  num_process: 128
+  num_perm: 128

@@ -1,0 +1,22 @@
+train_dataset:
+  key: openthaigpt
+  name: openthaigpt_pretraining_dataset
+  available_on_hub: False
+  path_name: dataset_path
+  split: train
+  subset:
+
+minhash:
+  newmm_dict: newmm_dict.txt
+  save_path: save_minhash_path
+
+deduplication:
+  thresold: 0.9
+  minhash_path: save_minhash_path
+  save_path: save_path_deduplication
+  save_path_duplicated: save_path_duplicated
+  batch_size: 10000
+
+global_config:
+  num_process: 128
+  num_perm: 128

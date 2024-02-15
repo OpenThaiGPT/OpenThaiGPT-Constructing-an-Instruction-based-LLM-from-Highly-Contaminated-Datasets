@@ -1,0 +1,11 @@
+train_dataset:
+  key: openthaigpt
+  name: openthaigpt_pretraining_dataset
+  available_on_hub: False
+  path_name: dataset_path
+  subset:
+
+blind_config:
+  engine: openthaigpt
+  save_path: dataset_path
+  num_proc: 128

@@ -1,0 +1,26 @@
+accelerator: cuda       # cuda | cpu
+strategy: auto          # dp | ddp | ddp_spawn | xla | deepspeed | fsdp
+stage: 2
+offload_optimizer: false
+offload_parameters: false
+gradient_clipping: 1.
+num_gpus: 1
+precision: 32-true      # 32-true | 32 | 16-mixed | bf16-mixed | 64-true 
+num_nodes: 1
+seed: 42                # {13|21|42|87|100}
+batch_size: 2
+grad: 4
+max_tokens: 2048
+num_shards: 1024
+num_workers: 2
+epochs: 1          
+start_epochs: 0
+start_steps: 0
+save_steps: 10000   
+eval_steps: 10000   
+save_paths: ./weight
+load_weight_path: False
+decay_lr: true
+warmup_iters: 2000
+lr_decay_iters: 600000
+min_lr: 6e-5

@@ -10,9 +10,13 @@ Experiment Models:
 
 Experiment Setups
 1. Preparing Tokenizer
+
 we training additional Thai langue tokenizers
+
 note that we skipped SeaLion-7B since there are large amounts containing Thai tokens
+
 1.1 Training SPM tokenizer is required for constructing LLM
+
 at config file: `src/model/configuration_example/spm/training_v1.yaml`
 ```
 output_path: path/to/output
@@ -31,6 +35,7 @@ python src/model/scripts/spm_training/train.py
 ```
 
 1.2. Run merging script for remote tokenizers and newly trained tokenizers
+
 run
 ```python
 python src/model/scripts/llama_thai_tokenizer/merge_tokenizer.py \
@@ -40,6 +45,7 @@ python src/model/scripts/llama_thai_tokenizer/merge_tokenizer.py \
 ```
 
 1.3. Now we update the vocab size
+
 run
 ```python
 python src/model/scripts/llama_thai_tokenizer/merge_tokenizer.py \
@@ -49,9 +55,13 @@ python src/model/scripts/llama_thai_tokenizer/merge_tokenizer.py \
 ```
 
 2. we preprocess configs for later continued pretraining in step 3
+
 there are 3 config files to add: dataset, model, data_process
+
 you can look for an example format inside a file in the same folder
+
 at config file: `src/model/configuration_example/dataset/dataset.yaml`
+
 change here, denote `#` as comment:
 ```yaml
 ...
@@ -61,6 +71,7 @@ tokenizer:
 ...
 ```
 at config file: `src/model/configuration_example/model/model.yaml`
+
 change here:
 ```yaml
 ...
@@ -75,6 +86,7 @@ eval:
 ...
 ```
 at config file: `src/model/configuration_example/data_process/data_process.yaml`
+
 change here:
 ```yaml
 ...
@@ -87,6 +99,7 @@ run preprocess script
 python src/model/scripts/lighting_training/data_preprocessing.py
 ```
 3. we can submit the training script at
+
 Some parameters concerns, editing in `step3_smultinode_deepspeed.sh`
 
 | Parameter                                                    | Explanation                                                                                                                                                                    |
